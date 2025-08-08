@@ -6,16 +6,28 @@
 <body>
     <h1 id="word">Loading...</h1>
     <p id="progress">Progress: 0 / 0</p>
+
     <form id="quizForm">
-        <div id="options"></div>
+        <div id="meaningSection">
+            <h3>Select all correct meanings</h3>
+            <div id="meaningOptions"></div>
+        </div>
+        <br/>
+        <div id="synonymSection">
+            <h3>Select all synonyms</h3>
+            <div id="synonymOptions"></div>
+        </div>
+        <br/>
         <button type="submit">Submit</button>
     </form>
+
     <p id="feedback"></p>
     <button id="retryButton" style="display:none;" onclick="retryWrongWords()">🔁 Retry Wrong Words</button>
 
     <script>
-        let correctAnswers = [];
         let currentWord = "";
+        let correctMeanings = [];
+        let correctSynonyms = [];
         let retryMode = false;
 
         async function loadQuestion() {
@@ -24,7 +36,8 @@
 
             if (data.done) {
                 document.getElementById("word").innerText = "✅ All words tested!";
-                document.getElementById("options").innerHTML = "";
+                document.getElementById("meaningOptions").innerHTML = "";
+                document.getElementById("synonymOptions").innerHTML = "";
                 document.getElementById("progress").innerText = "";
                 document.getElementById("feedback").innerText = "";
 
@@ -41,40 +54,52 @@
                     }
                 }
 
-                document.getElementById("options").innerHTML = feedback;
+                document.getElementById("meaningOptions").innerHTML = feedback;
                 return;
             }
 
             document.getElementById("retryButton").style.display = "none";
             document.getElementById("feedback").innerText = "";
 
-            document.getElementById("word").innerText = `What does "${data.word}" mean?`;
-            document.getElementById("progress").innerText = `Progress: ${data.progress} / ${data.total}`;
-            correctAnswers = data.correct;
             currentWord = data.word;
+            correctMeanings = data.meanings;
+            correctSynonyms = data.synonyms;
+            retryMode = data.retry_mode;
 
-            let optionsDiv = document.getElementById("options");
-            optionsDiv.innerHTML = "";
-            data.options.forEach(opt => {
-                optionsDiv.innerHTML += `
-                    <label><input type="checkbox" name="option" value="${opt}"> ${opt}</label><br/>
+            document.getElementById("word").innerText = `What does "${currentWord}" mean?`;
+            document.getElementById("progress").innerText = `Progress: ${data.progress} / ${data.total}`;
+
+            // Render meanings from backend
+            const meaningDiv = document.getElementById("meaningOptions");
+            meaningDiv.innerHTML = "";
+            data.meaning_options.forEach(m => {
+                meaningDiv.innerHTML += `
+                    <label><input type="checkbox" name="meaning" value="${m}"> ${m}</label><br/>
                 `;
             });
 
-            retryMode = data.retry_mode;
+            // Render synonyms from backend
+            const synonymDiv = document.getElementById("synonymOptions");
+            synonymDiv.innerHTML = "";
+            data.synonym_options.forEach(s => {
+                synonymDiv.innerHTML += `
+                    <label><input type="checkbox" name="synonym" value="${s}"> ${s}</label><br/>
+                `;
+            });
         }
 
         document.getElementById("quizForm").addEventListener("submit", async function(e) {
             e.preventDefault();
-            const selected = [...document.querySelectorAll("input[name='option']:checked")].map(i => i.value);
+            const selectedMeanings = [...document.querySelectorAll("input[name='meaning']:checked")].map(i => i.value);
+            const selectedSynonyms = [...document.querySelectorAll("input[name='synonym']:checked")].map(i => i.value);
 
             const res = await fetch("/api/submit", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    selected: selected,
-                    correct: correctAnswers,
-                    word: currentWord
+                    word: currentWord,
+                    selected_meanings: selectedMeanings,
+                    selected_synonyms: selectedSynonyms
                 })
             });
 
@@ -85,15 +110,15 @@
             } else {
                 document.getElementById("feedback").innerHTML = `
                     ❌ Try Again!<br/>
-                    ✅ Correct Answer(s): ${result.correct.join(", ")}
+                    ✅ Correct meanings: ${result.correct_meanings.join(", ")}<br/>
+                    ✅ Correct synonyms: ${result.correct_synonyms.join(", ")}
                 `;
             }
 
-            // Brief delay before moving to next question
             setTimeout(() => {
                 document.getElementById("feedback").innerText = "";
                 loadQuestion();
-            }, 500);
+            }, 1000);
         });
 
         async function retryWrongWords() {

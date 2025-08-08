@@ -87,14 +87,28 @@ def question():
     synonym_candidates = []
     for m in meanings:
         synonym_candidates += [w for w in meaning_to_words[m] if w != word]
-    synonyms = random.sample(synonym_candidates, min(len(synonym_candidates), random.choice([1, 2])))
+    correct_synonyms = random.sample(synonym_candidates, min(len(synonym_candidates), random.choice([1, 2])))
+
+    # Create distractor meanings (not associated with this word)
+    distractor_meanings = [m for m in all_meanings if m not in meanings]
+    distractor_meanings = random.sample(distractor_meanings, min(4, len(distractor_meanings)))
+    meaning_options = list(set(meanings + distractor_meanings))
+    random.shuffle(meaning_options)
+
+    # Create distractor synonyms (words that don’t share the same meaning)
+    unrelated_words = [w for w in all_words if w not in synonym_candidates and w != word]
+    distractor_synonyms = random.sample(unrelated_words, min(4, len(unrelated_words)))
+    synonym_options = list(set(correct_synonyms + distractor_synonyms))
+    random.shuffle(synonym_options)
 
     asked_words.append(word)
 
     return jsonify({
         "word": word,
         "meanings": meanings,
-        "synonyms": synonyms,
+        "synonyms": correct_synonyms,
+        "meaning_options": meaning_options,
+        "synonym_options": synonym_options,
         "progress": len(asked_words),
         "total": len(pool),
         "done": False,
@@ -118,7 +132,6 @@ def submit():
 
     is_correct = (selected_synonyms == correct_synonyms) and (selected_meanings == correct_meanings)
 
-    # Log wrong answers
     if not is_correct:
         today = datetime.datetime.now().strftime("%Y-%m-%d")
         log_filename = os.path.join(log_dir, f"wrong_log_{today}.txt")
@@ -148,4 +161,3 @@ def submit():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(debug=False, host="0.0.0.0", port=port)
-
