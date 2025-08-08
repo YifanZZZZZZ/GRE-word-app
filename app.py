@@ -36,7 +36,7 @@ def load_word_meaning_map(file_path):
     return word_to_meanings, meaning_to_words, list(set(all_meanings))
 
 # Load on startup
-word_to_meanings, meaning_to_words, all_meanings = load_word_meaning_map("/Users/zhangyifan/Desktop/WordTest/GRE同义词.xlsx")
+word_to_meanings, meaning_to_words, all_meanings = load_word_meaning_map("./GRE同义词.xlsx")
 all_words = list(word_to_meanings.keys())
 total_words = len(all_words)
 
