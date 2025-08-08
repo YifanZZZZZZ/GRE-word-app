@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Word Quiz</title>
+</head>
+<body>
+    <h1 id="word">Loading...</h1>
+    <p id="progress">Progress: 0 / 0</p>
+    <form id="quizForm">
+        <div id="options"></div>
+        <button type="submit">Submit</button>
+    </form>
+    <p id="feedback"></p>
+    <button id="retryButton" style="display:none;" onclick="retryWrongWords()">🔁 Retry Wrong Words</button>
+
+    <script>
+        let correctAnswers = [];
+        let currentWord = "";
+        let retryMode = false;
+
+        async function loadQuestion() {
+            const res = await fetch("/api/question");
+            const data = await res.json();
+
+            if (data.done) {
+                document.getElementById("word").innerText = "✅ All words tested!";
+                document.getElementById("options").innerHTML = "";
+                document.getElementById("progress").innerText = "";
+                document.getElementById("feedback").innerText = "";
+
+                const wrongRes = await fetch("/api/wrong");
+                const wrongData = await wrongRes.json();
+
+                let feedback = "<h3>Words you got wrong:</h3>";
+                if (wrongData.wrong.length === 0) {
+                    feedback += "<p>🎉 You got everything correct!</p>";
+                } else {
+                    feedback += "<ul>" + wrongData.wrong.map(w => `<li>${w}</li>`).join("") + "</ul>";
+                    if (!data.retry_mode) {
+                        document.getElementById("retryButton").style.display = "inline";
+                    }
+                }
+
+                document.getElementById("options").innerHTML = feedback;
+                return;
+            }
+
+            document.getElementById("retryButton").style.display = "none";
+            document.getElementById("feedback").innerText = "";
+
+            document.getElementById("word").innerText = `What does "${data.word}" mean?`;
+            document.getElementById("progress").innerText = `Progress: ${data.progress} / ${data.total}`;
+            correctAnswers = data.correct;
+            currentWord = data.word;
+
+            let optionsDiv = document.getElementById("options");
+            optionsDiv.innerHTML = "";
+            data.options.forEach(opt => {
+                optionsDiv.innerHTML += `
+                    <label><input type="checkbox" name="option" value="${opt}"> ${opt}</label><br/>
+                `;
+            });
+
+            retryMode = data.retry_mode;
+        }
+
+        document.getElementById("quizForm").addEventListener("submit", async function(e) {
+            e.preventDefault();
+            const selected = [...document.querySelectorAll("input[name='option']:checked")].map(i => i.value);
+
+            const res = await fetch("/api/submit", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    selected: selected,
+                    correct: correctAnswers,
+                    word: currentWord
+                })
+            });
+
+            const result = await res.json();
+
+            if (result.result) {
+                document.getElementById("feedback").innerText = "✅ You're right!";
+            } else {
+                document.getElementById("feedback").innerHTML = `
+                    ❌ Try Again!<br/>
+                    ✅ Correct Answer(s): ${result.correct.join(", ")}
+                `;
+            }
+
+            // Brief delay before moving to next question
+            setTimeout(() => {
+                document.getElementById("feedback").innerText = "";
+                loadQuestion();
+            }, 500);
+        });
+
+        async function retryWrongWords() {
+            await fetch("/api/retry_wrong", { method: "POST" });
+            document.getElementById("retryButton").style.display = "none";
+            document.getElementById("feedback").innerText = "";
+            loadQuestion();
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>
