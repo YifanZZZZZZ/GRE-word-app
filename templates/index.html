@@ -43,6 +43,7 @@
 
     <p id="feedback"></p>
     <button id="retryButton" style="display:none;" onclick="retryWrongWords()">🔁 Retry Wrong Words</button>
+    <button id="nextButton" style="display:none;" onclick="nextQuestion()">➡️ Next</button>
 
     <script>
         let currentWord = "";
@@ -50,7 +51,6 @@
         let correctSynonyms = [];
         let retryMode = false;
 
-        // Load logs if review mode is selected
         document.getElementById("modeSelect").addEventListener("change", async () => {
             const mode = document.getElementById("modeSelect").value;
             const logLabel = document.getElementById("logSelectLabel");
@@ -77,10 +77,7 @@
                 body: JSON.stringify({ mode, log })
             });
 
-            // Hide mode selection UI
             document.getElementById("modeSelection").style.display = "none";
-
-            // Show quiz elements
             document.getElementById("word").style.display = "block";
             document.getElementById("progress").style.display = "block";
             document.getElementById("quizForm").style.display = "block";
@@ -117,6 +114,7 @@
             }
 
             document.getElementById("retryButton").style.display = "none";
+            document.getElementById("nextButton").style.display = "none";
             document.getElementById("feedback").innerText = "";
 
             currentWord = data.word;
@@ -124,10 +122,9 @@
             correctSynonyms = data.synonyms;
             retryMode = data.retry_mode;
 
-            document.getElementById("word").innerText = `What does "${currentWord}" mean?`;
+            document.getElementById("word").innerText = `What does \"${currentWord}\" mean?`;
             document.getElementById("progress").innerText = `Progress: ${data.progress} / ${data.total}`;
 
-            // Render meaning options
             const meaningDiv = document.getElementById("meaningOptions");
             meaningDiv.innerHTML = "";
             data.meaning_options.forEach(m => {
@@ -136,7 +133,6 @@
                 `;
             });
 
-            // Render synonym options
             const synonymDiv = document.getElementById("synonymOptions");
             synonymDiv.innerHTML = "";
             data.synonym_options.forEach(s => {
@@ -165,19 +161,32 @@
 
             if (result.result) {
                 document.getElementById("feedback").innerText = "✅ You're right!";
+                setTimeout(() => {
+                    document.getElementById("feedback").innerText = "";
+                    loadQuestion();
+                }, 1000);
             } else {
                 document.getElementById("feedback").innerHTML = `
                     ❌ Try Again!<br/>
                     ✅ Correct meanings: ${result.correct_meanings.join(", ")}<br/>
                     ✅ Correct synonyms: ${result.correct_synonyms.join(", ")}
                 `;
-            }
 
-            setTimeout(() => {
-                document.getElementById("feedback").innerText = "";
-                loadQuestion();
-            }, 1000);
+                document.querySelectorAll("input[name='meaning']").forEach(i => i.disabled = true);
+                document.querySelectorAll("input[name='synonym']").forEach(i => i.disabled = true);
+                document.querySelector("button[type='submit']").disabled = true;
+                document.getElementById("nextButton").style.display = "inline";
+            }
         });
+
+        function nextQuestion() {
+            document.getElementById("feedback").innerText = "";
+            document.getElementById("nextButton").style.display = "none";
+            document.querySelector("button[type='submit']").disabled = false;
+            document.querySelectorAll("input[name='meaning']").forEach(i => i.disabled = false);
+            document.querySelectorAll("input[name='synonym']").forEach(i => i.disabled = false);
+            loadQuestion();
+        }
 
         async function retryWrongWords() {
             await fetch("/api/retry_wrong", { method: "POST" });
