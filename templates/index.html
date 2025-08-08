@@ -4,10 +4,30 @@
     <title>Word Quiz</title>
 </head>
 <body>
-    <h1 id="word">Loading...</h1>
-    <p id="progress">Progress: 0 / 0</p>
+    <!-- Mode Selection UI -->
+    <div id="modeSelection">
+        <h2>Select Mode</h2>
+        <label>
+            Mode:
+            <select id="modeSelect">
+                <option value="all">All Words</option>
+                <option value="review">Review Wrong Words</option>
+            </select>
+        </label>
 
-    <form id="quizForm">
+        <label id="logSelectLabel" style="display:none;">
+            Log:
+            <select id="logSelect"></select>
+        </label>
+
+        <button onclick="startQuiz()">Start Quiz</button>
+    </div>
+
+    <!-- Quiz UI -->
+    <h1 id="word" style="display:none;">Loading...</h1>
+    <p id="progress" style="display:none;">Progress: 0 / 0</p>
+
+    <form id="quizForm" style="display:none;">
         <div id="meaningSection">
             <h3>Select all correct meanings</h3>
             <div id="meaningOptions"></div>
@@ -29,6 +49,44 @@
         let correctMeanings = [];
         let correctSynonyms = [];
         let retryMode = false;
+
+        // Load logs if review mode is selected
+        document.getElementById("modeSelect").addEventListener("change", async () => {
+            const mode = document.getElementById("modeSelect").value;
+            const logLabel = document.getElementById("logSelectLabel");
+
+            if (mode === "review") {
+                logLabel.style.display = "inline";
+                const res = await fetch("/api/logs");
+                const logs = await res.json();
+                document.getElementById("logSelect").innerHTML = logs.logs
+                    .map(log => `<option value="${log}">${log}</option>`)
+                    .join("");
+            } else {
+                logLabel.style.display = "none";
+            }
+        });
+
+        async function startQuiz() {
+            const mode = document.getElementById("modeSelect").value;
+            const log = document.getElementById("logSelect").value;
+
+            await fetch("/api/set_mode", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ mode, log })
+            });
+
+            // Hide mode selection UI
+            document.getElementById("modeSelection").style.display = "none";
+
+            // Show quiz elements
+            document.getElementById("word").style.display = "block";
+            document.getElementById("progress").style.display = "block";
+            document.getElementById("quizForm").style.display = "block";
+
+            loadQuestion();
+        }
 
         async function loadQuestion() {
             const res = await fetch("/api/question");
@@ -69,7 +127,7 @@
             document.getElementById("word").innerText = `What does "${currentWord}" mean?`;
             document.getElementById("progress").innerText = `Progress: ${data.progress} / ${data.total}`;
 
-            // Render meanings from backend
+            // Render meaning options
             const meaningDiv = document.getElementById("meaningOptions");
             meaningDiv.innerHTML = "";
             data.meaning_options.forEach(m => {
@@ -78,7 +136,7 @@
                 `;
             });
 
-            // Render synonyms from backend
+            // Render synonym options
             const synonymDiv = document.getElementById("synonymOptions");
             synonymDiv.innerHTML = "";
             data.synonym_options.forEach(s => {
@@ -127,8 +185,6 @@
             document.getElementById("feedback").innerText = "";
             loadQuestion();
         }
-
-        loadQuestion();
     </script>
 </body>
 </html>
