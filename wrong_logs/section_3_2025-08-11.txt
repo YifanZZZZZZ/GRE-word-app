@@ -1,0 +1,288 @@
+Word: fruitless
+Correct meanings: 无意义的
+Your meanings: 公平的, 无意义的, 疏远
+Correct synonyms (shown): pointless
+Your synonyms: profound
+---
+Word: palpable
+Correct meanings: 显著的
+Your meanings: 从…推断出, 无害的
+Correct synonyms (shown): salient, visible
+Your synonyms: salient
+---
+Word: random
+Correct meanings: 随意的
+Your meanings: 随意的
+Correct synonyms (shown): obstinate, wayward
+Your synonyms: dexterous, wayward
+---
+Word: apogee
+Correct meanings: 顶点
+Your meanings: 顶点
+Correct synonyms (shown): pinnacle
+Your synonyms: particular
+---
+Word: rare
+Correct meanings: 不同寻常的
+Your meanings: 零星的
+Correct synonyms (shown): unorthodox
+Your synonyms: disparage
+---
+Word: incisive
+Correct meanings: 敏锐的, 有效的
+Your meanings: 敏锐的, 有效的, 贪婪的
+Correct synonyms (shown): trenchant
+Your synonyms: attenuate, trenchant
+---
+Word: support
+Correct meanings: 拥护, 支持
+Your meanings: 拥护, 支持
+Correct synonyms (shown): abet, instigate
+Your synonyms: abet, plausible
+---
+Word: ineffective
+Correct meanings: 缺少的
+Your meanings: 缺少的
+Correct synonyms (shown): scant, scarce
+Your synonyms: dwindle, scarce
+---
+Word: rebuke
+Correct meanings: 指责
+Your meanings: 指责
+Correct synonyms (shown): excoriate, indict
+Your synonyms: indict, ring true, tortuous
+---
+Word: undeveloped
+Correct meanings: 不完全的
+Your meanings: 不完全的
+Correct synonyms (shown): sketchy
+Your synonyms: detract
+---
+Word: modest
+Correct meanings: 简朴的, 谦逊的
+Your meanings: 减轻, 谦逊的
+Correct synonyms (shown): frugal, humility
+Your synonyms: diffident, humility
+---
+Word: fiasco
+Correct meanings: 彻底失败
+Your meanings: 万灵药, 乐观的
+Correct synonyms (shown): debacle
+Your synonyms: debacle, prophetic
+---
+Word: antipathetic
+Correct meanings: 矛盾的
+Your meanings: 残酷的
+Correct synonyms (shown): dichotomous, inconsistent
+Your synonyms: abet, foundation, inconsistent
+---
+Word: convoluted
+Correct meanings: 复杂的
+Your meanings: 有害的
+Correct synonyms (shown): cryptic, inscrutable
+Your synonyms: cryptic, inscrutable
+---
+Word: audacious
+Correct meanings: 冲动的
+Your meanings: 冲动的
+Correct synonyms (shown): impulsive, striking
+Your synonyms: impulsive, unanticipated
+---
+Word: unperturbed
+Correct meanings: 冷静的
+Your meanings: 缺少的
+Correct synonyms (shown): collected, composed
+Your synonyms: collected, composed, surfeit
+---
+Word: refractory
+Correct meanings: 难驾驭的
+Your meanings: 枯燥的, 缺乏的
+Correct synonyms (shown): recalcitrant
+Your synonyms: enhance, recalcitrant
+---
+Word: haphazard
+Correct meanings: 混乱, 随意的
+Your meanings: 前所未有的, 随意的
+Correct synonyms (shown): arbitrary
+Your synonyms: arbitrary
+---
+Word: abstemious
+Correct meanings: 有节制的
+Your meanings: 有节制的
+Correct synonyms (shown): austere, moderate
+Your synonyms: austere
+---
+Word: stinting
+Correct meanings: 简朴的
+Your meanings: 简朴的, 错误的
+Correct synonyms (shown): unostentatious
+Your synonyms: unostentatious
+---
+Word: worthwhile
+Correct meanings: 有价值的
+Your meanings: 有价值的
+Correct synonyms (shown): estimable
+Your synonyms: superciliousness
+---
+Word: instigate
+Correct meanings: 支持
+Your meanings: 引起, 说教的
+Correct synonyms (shown): support
+Your synonyms: tedious
+---
+Word: zealot
+Correct meanings: 狂热者
+Your meanings: 狂热者
+Correct synonyms (shown): extremist, ideologue
+Your synonyms: enamor, extremist
+---
+Word: submission
+Correct meanings: 顺从的
+Your meanings: 顺从的
+Correct synonyms (shown): respectful
+Your synonyms: concede
+---
+Word: rigid
+Correct meanings: 教条主义的
+Your meanings: 教条主义的, 精确
+Correct synonyms (shown): doctrinaire, dogmatic
+Your synonyms: doctrinaire
+---
+Word: succinct
+Correct meanings: 简短的
+Your meanings: 无关的, 渴望的, 简短的
+Correct synonyms (shown): taciturn, terse
+Your synonyms: taciturn
+---
+Word: errant
+Correct meanings: 任性的, 随意的
+Your meanings: 任性的, 随意的
+Correct synonyms (shown): obstinate
+Your synonyms: sweeping
+---
+Word: complaisant
+Correct meanings: 顺从的
+Your meanings: 博学者, 推测, 赞同
+Correct synonyms (shown): deferential
+Your synonyms: deferential
+---
+Word: curtail
+Correct meanings: 缓和, 缩减
+Your meanings: 必须的, 缩减
+Correct synonyms (shown): abate, relieve
+Your synonyms: primitive, solicit, subvert
+---
+Word: laggard
+Correct meanings: 缓慢的
+Your meanings: 缓慢的
+Correct synonyms (shown): listless, sluggish
+Your synonyms: sluggish
+---
+Word: vapid
+Correct meanings: 枯燥的
+Your meanings: 枯燥的, 灾难
+Correct synonyms (shown): boring
+Your synonyms: fair
+---
+Word: put to rest
+Correct meanings: 排除
+Your meanings: 消灭, 缺少的
+Correct synonyms (shown): preclude, rule out
+Your synonyms: preclude, rule out
+---
+Word: remove
+Correct meanings: 除去
+Your meanings: 除去
+Correct synonyms (shown): divest
+Your synonyms: ineffective
+---
+Word: decline
+Correct meanings: 使恶化, 衰落
+Your meanings: 使恶化, 衰落
+Correct synonyms (shown): wane
+Your synonyms: damp
+---
+Word: detracting
+Correct meanings: 反对的
+Your meanings: 转向
+Correct synonyms (shown): deprecatory
+Your synonyms: salient, square with
+---
+Word: intransigent
+Correct meanings: 不妥协的, 固执的
+Your meanings: 不妥协的, 固执的
+Correct synonyms (shown): inexorable, intractable
+Your synonyms: intractable
+---
+Word: obscure
+Correct meanings: 不出名的, 使混淆, 超过
+Your meanings: 不出名的, 使混淆, 变暗, 讨厌的东西
+Correct synonyms (shown): opaque
+Your synonyms: fluctuate
+---
+Word: sleazy
+Correct meanings: 肮脏的
+Your meanings: 愚蠢无知的, 肮脏的
+Correct synonyms (shown): sordid
+Your synonyms: sordid
+---
+Word: painstaking
+Correct meanings: 周密的
+Your meanings: 有价值的, 稳定
+Correct synonyms (shown): exact, meticulous
+Your synonyms: convoluted
+---
+Word: fitful
+Correct meanings: 零星的
+Your meanings: 慎重的
+Correct synonyms (shown): occassional, sporadic
+Your synonyms: indispensable, occassional, unformed
+---
+Word: suspect
+Correct meanings: 怀疑的
+Your meanings: 怀疑的
+Correct synonyms (shown): dubious, unimpressed
+Your synonyms: disregard, dubious
+---
+Word: tenuous
+Correct meanings: 纤细的，稀少的, 脆弱的
+Your meanings: 纤细的，稀少的, 脆弱的
+Correct synonyms (shown): uncertain
+Your synonyms: lukewarm
+---
+Word: dodge
+Correct meanings: 避开
+Your meanings: 磨砺
+Correct synonyms (shown): circumvent, sidestep
+Your synonyms: circumvent, mordant
+---
+Word: induce
+Correct meanings: 引起
+Your meanings: 引起
+Correct synonyms (shown): engender
+Your synonyms: engender, hone
+---
+Word: vacillate
+Correct meanings: 波动
+Your meanings: 波动
+Correct synonyms (shown): vary
+Your synonyms: antediluvian, vary
+---
+Word: numinous
+Correct meanings: 神秘的
+Your meanings: 神秘的
+Correct synonyms (shown): occult
+Your synonyms: surreptitious
+---
+Word: contract
+Correct meanings: 逐渐变小
+Your meanings: 公开谴责, 逐渐变小
+Correct synonyms (shown): dwindle
+Your synonyms: dwindle
+---
+Word: divorce
+Correct meanings: 脱离
+Your meanings: 脱离
+Correct synonyms (shown): abstracted, untether
+Your synonyms: debacle, untether
+---

@@ -1,86 +1,170 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8" />
     <title>Word Quiz</title>
+    <style>
+        body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; line-height: 1.4; padding: 20px; }
+        h1, h2, h3 { margin: 0.3em 0; }
+        label { margin-right: 12px; }
+        #controls { display: grid; gap: 10px; align-items: center; grid-template-columns: 1fr; max-width: 820px; }
+        .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+        .hint { color: #666; font-size: 0.9em; }
+        #quizForm { margin-top: 10px; }
+        #synonymSection[hidden], #meaningsOnlyBadge[hidden], #retryButton[hidden], #nextButton[hidden], #logSelectLabel[hidden] { display: none !important; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; background: #eef; color: #224; }
+        .panel { border: 1px solid #ddd; border-radius: 8px; padding: 12px; }
+        button { cursor: pointer; }
+        .stack { display: grid; gap: 8px; }
+    </style>
 </head>
 <body>
-    <!-- Mode Selection UI -->
-    <div id="modeSelection">
-        <h2>Select Mode</h2>
-        <label>
-            Mode:
-            <select id="modeSelect">
-                <option value="all">All Words</option>
-                <option value="review">Review Wrong Words</option>
-            </select>
-        </label>
+    <!-- Mode & Section Selection UI -->
+    <div id="modeSelection" class="panel stack">
+        <h2>Select Mode & Section</h2>
 
-        <label id="logSelectLabel" style="display:none;">
-            Log:
-            <select id="logSelect"></select>
-        </label>
+        <div id="controls" class="stack">
+            <div class="row">
+                <label>
+                    Mode:
+                    <select id="modeSelect">
+                        <option value="all">All Words</option>
+                        <option value="review">Review Wrong Words</option>
+                    </select>
+                </label>
 
-        <button onclick="startQuiz()">Start Quiz</button>
+                <label>
+                    Section:
+                    <select id="sectionSelect"></select>
+                </label>
+
+                <label id="logSelectLabel" hidden>
+                    Log:
+                    <select id="logSelect"></select>
+                </label>
+
+                <button id="startBtn" onclick="startQuiz()">Start Quiz</button>
+            </div>
+
+            <!-- Create-today helper -->
+            <div class="row">
+                <strong>Create Today’s Section:</strong>
+                <input type="date" id="todayDate" />
+                <button onclick="createTodaySection()">Create</button>
+                <span class="hint">Reads the sheet from your daily Excel (one sheet per day) and adds <code>new_words_&lt;date&gt;.txt</code> to Sections.</span>
+            </div>
+        </div>
     </div>
 
     <!-- Quiz UI -->
-    <h1 id="word" style="display:none;">Loading...</h1>
-    <p id="progress" style="display:none;">Progress: 0 / 0</p>
-
-    <form id="quizForm" style="display:none;">
-        <div id="meaningSection">
-            <h3>Select all correct meanings</h3>
-            <div id="meaningOptions"></div>
+    <div id="quizArea" class="panel" style="display:none;">
+        <div class="row">
+            <h1 id="word">Loading...</h1>
+            <span id="meaningsOnlyBadge" class="badge" hidden>Meanings-only</span>
         </div>
-        <br/>
-        <div id="synonymSection">
-            <h3>Select all synonyms</h3>
-            <div id="synonymOptions"></div>
-        </div>
-        <br/>
-        <button type="submit">Submit</button>
-    </form>
+        <p id="progress">Progress: 0 / 0</p>
 
-    <p id="feedback"></p>
-    <button id="retryButton" style="display:none;" onclick="retryWrongWords()">🔁 Retry Wrong Words</button>
-    <button id="nextButton" style="display:none;" onclick="nextQuestion()">➡️ Next</button>
+        <form id="quizForm" class="stack">
+            <div id="meaningSection">
+                <h3>Select all correct meanings</h3>
+                <div id="meaningOptions"></div>
+            </div>
+
+            <div id="synonymSection">
+                <h3>Select all synonyms</h3>
+                <div id="synonymOptions"></div>
+            </div>
+
+            <div class="row">
+                <button id="submitBtn" type="submit">Submit</button>
+                <button id="nextButton" type="button" hidden onclick="nextQuestion()">➡️ Next</button>
+            </div>
+        </form>
+
+        <div id="feedback" class="panel" style="margin-top:10px;"></div>
+
+        <div class="row" style="margin-top:8px;">
+            <button id="retryButton" hidden onclick="retryWrongWords()">🔁 Retry Wrong Words</button>
+        </div>
+    </div>
 
     <script>
         let currentWord = "";
-        let correctMeanings = [];
-        let correctSynonyms = [];
         let retryMode = false;
+        let meaningsOnly = false;
 
+        // Populate sections on load
+        window.addEventListener("load", async () => {
+            await populateSections();
+        });
+
+        async function populateSections() {
+            const res = await fetch("/api/sections");
+            const data = await res.json();
+            const sel = document.getElementById("sectionSelect");
+            sel.innerHTML = data.sections.map(sec => `<option value="${sec}">${sec}</option>`).join("");
+        }
+
+        // Toggle log dropdown only for review mode
         document.getElementById("modeSelect").addEventListener("change", async () => {
             const mode = document.getElementById("modeSelect").value;
             const logLabel = document.getElementById("logSelectLabel");
-
             if (mode === "review") {
-                logLabel.style.display = "inline";
+                logLabel.hidden = false;
                 const res = await fetch("/api/logs");
                 const logs = await res.json();
                 document.getElementById("logSelect").innerHTML = logs.logs
-                    .map(log => `<option value="${log}">${log}</option>`)
-                    .join("");
+                    .map(log => `<option value="${log}">${log}</option>`).join("");
             } else {
-                logLabel.style.display = "none";
+                logLabel.hidden = true;
             }
         });
 
+        async function createTodaySection() {
+            const dateInput = document.getElementById("todayDate").value; // optional
+            const payload = dateInput ? { date: dateInput } : {};
+            const btn = event.currentTarget;
+            btn.disabled = true;
+            try {
+                const res = await fetch("/api/create_today_section", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (!data.ok) {
+                    alert("Create section failed: " + (data.error || "Unknown error"));
+                    return;
+                }
+                // Refresh sections and select the newly created one
+                await populateSections();
+                const sel = document.getElementById("sectionSelect");
+                sel.value = data.section;
+            } catch (e) {
+                alert("Request failed: " + e.message);
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
         async function startQuiz() {
             const mode = document.getElementById("modeSelect").value;
-            const log = document.getElementById("logSelect").value;
+            const section = document.getElementById("sectionSelect").value;
+            const log = (mode === "review") ? (document.getElementById("logSelect").value || null) : null;
 
-            await fetch("/api/set_mode", {
+            const resp = await fetch("/api/set_mode", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ mode, log })
+                body: JSON.stringify({ mode, log, section })
             });
+            const cfg = await resp.json();
 
             document.getElementById("modeSelection").style.display = "none";
-            document.getElementById("word").style.display = "block";
-            document.getElementById("progress").style.display = "block";
-            document.getElementById("quizForm").style.display = "block";
+            document.getElementById("quizArea").style.display = "block";
+
+            // reset UI bits
+            document.getElementById("feedback").innerText = "";
+            document.getElementById("nextButton").hidden = true;
 
             loadQuestion();
         }
@@ -96,56 +180,67 @@
                 document.getElementById("progress").innerText = "";
                 document.getElementById("feedback").innerText = "";
 
-                const wrongRes = await fetch("/api/wrong");
-                const wrongData = await wrongRes.json();
-
-                let feedback = "<h3>Words you got wrong:</h3>";
-                if (wrongData.wrong.length === 0) {
-                    feedback += "<p>🎉 You got everything correct!</p>";
-                } else {
-                    feedback += "<ul>" + wrongData.wrong.map(w => `<li>${w}</li>`).join("") + "</ul>";
-                    if (!data.retry_mode) {
-                        document.getElementById("retryButton").style.display = "inline";
+                // Optional: if you have /api/wrong and /api/retry_wrong, try to show them.
+                try {
+                    const wrongRes = await fetch("/api/wrong");
+                    if (wrongRes.ok) {
+                        const wrongData = await wrongRes.json();
+                        let feedback = "<h3>Words you got wrong:</h3>";
+                        if (!wrongData.wrong || wrongData.wrong.length === 0) {
+                            feedback += "<p>🎉 You got everything correct!</p>";
+                        } else {
+                            feedback += "<ul>" + wrongData.wrong.map(w => `<li>${w}</li>`).join("") + "</ul>";
+                            if (!data.retry_mode) {
+                                document.getElementById("retryButton").hidden = false;
+                            }
+                        }
+                        document.getElementById("feedback").innerHTML = feedback;
                     }
-                }
-
-                document.getElementById("meaningOptions").innerHTML = feedback;
+                } catch (_) { /* ignore if not implemented */ }
                 return;
             }
 
-            document.getElementById("retryButton").style.display = "none";
-            document.getElementById("nextButton").style.display = "none";
-            document.getElementById("feedback").innerText = "";
-
+            // State from backend
             currentWord = data.word;
-            correctMeanings = data.meanings;
-            correctSynonyms = data.synonyms;
             retryMode = data.retry_mode;
+            meaningsOnly = !!data.meanings_only;
 
-            document.getElementById("word").innerText = `What does \"${currentWord}\" mean?`;
+            // Toggle synonym UI based on meaningsOnly or if API gives no synonym options
+            const synonymSection = document.getElementById("synonymSection");
+            const meaningsOnlyBadge = document.getElementById("meaningsOnlyBadge");
+            const hideSynonyms = meaningsOnly || (Array.isArray(data.synonym_options) && data.synonym_options.length === 0);
+            synonymSection.hidden = hideSynonyms;
+            meaningsOnlyBadge.hidden = !meaningsOnly;
+
+            // Render question + options
+            document.getElementById("word").innerText = `What does "${currentWord}" mean?`;
             document.getElementById("progress").innerText = `Progress: ${data.progress} / ${data.total}`;
 
             const meaningDiv = document.getElementById("meaningOptions");
             meaningDiv.innerHTML = "";
-            data.meaning_options.forEach(m => {
-                meaningDiv.innerHTML += `
-                    <label><input type="checkbox" name="meaning" value="${m}"> ${m}</label><br/>
-                `;
+            (data.meaning_options || []).forEach(m => {
+                meaningDiv.innerHTML += `<label><input type="checkbox" name="meaning" value="${m}"> ${m}</label><br/>`;
             });
 
             const synonymDiv = document.getElementById("synonymOptions");
             synonymDiv.innerHTML = "";
-            data.synonym_options.forEach(s => {
-                synonymDiv.innerHTML += `
-                    <label><input type="checkbox" name="synonym" value="${s}"> ${s}</label><br/>
-                `;
-            });
+            if (!hideSynonyms) {
+                (data.synonym_options || []).forEach(s => {
+                    synonymDiv.innerHTML += `<label><input type="checkbox" name="synonym" value="${s}"> ${s}</label><br/>`;
+                });
+            }
+
+            // Reset buttons/feedback
+            document.getElementById("feedback").innerText = "";
+            document.getElementById("nextButton").hidden = true;
+            document.getElementById("submitBtn").disabled = false;
+            enableInputs();
         }
 
-        document.getElementById("quizForm").addEventListener("submit", async function(e) {
+        document.getElementById("quizForm").addEventListener("submit", async function (e) {
             e.preventDefault();
             const selectedMeanings = [...document.querySelectorAll("input[name='meaning']:checked")].map(i => i.value);
-            const selectedSynonyms = [...document.querySelectorAll("input[name='synonym']:checked")].map(i => i.value);
+            const selectedSynonyms = meaningsOnly ? [] : [...document.querySelectorAll("input[name='synonym']:checked")].map(i => i.value);
 
             const res = await fetch("/api/submit", {
                 method: "POST",
@@ -160,37 +255,57 @@
             const result = await res.json();
 
             if (result.result) {
-                document.getElementById("feedback").innerText = "✅ You're right!";
+                let html = "✅ You're right!";
+                if (result.correct_meanings && result.correct_meanings.length > 0) {
+                    html += `<br/>✅ Correct meanings: ${result.correct_meanings.join(", ")}`;
+                }
+                if (!meaningsOnly && result.correct_synonyms && result.correct_synonyms.length > 0) {
+                    html += `<br/>✅ Correct synonyms: ${result.correct_synonyms.join(", ")}`;
+                }
+                document.getElementById("feedback").innerHTML = html;
                 setTimeout(() => {
                     document.getElementById("feedback").innerText = "";
                     loadQuestion();
-                }, 1000);
+                }, 800); // give user a moment to see the correct answer
             } else {
-                document.getElementById("feedback").innerHTML = `
-                    ❌ Try Again!<br/>
-                    ✅ Correct meanings: ${result.correct_meanings.join(", ")}<br/>
-                    ✅ Correct synonyms: ${result.correct_synonyms.join(", ")}
-                `;
-
-                document.querySelectorAll("input[name='meaning']").forEach(i => i.disabled = true);
-                document.querySelectorAll("input[name='synonym']").forEach(i => i.disabled = true);
-                document.querySelector("button[type='submit']").disabled = true;
-                document.getElementById("nextButton").style.display = "inline";
+                let html = `❌ Try Again!`;
+                if (result.correct_meanings && result.correct_meanings.length > 0) {
+                    html += `<br/>✅ Correct meanings: ${result.correct_meanings.join(", ")}`;
+                }
+                if (!meaningsOnly && result.correct_synonyms && result.correct_synonyms.length > 0) {
+                    html += `<br/>✅ Correct synonyms: ${result.correct_synonyms.join(", ")}`;
+                }
+                document.getElementById("feedback").innerHTML = html;
+                disableInputs();
+                document.getElementById("nextButton").hidden = false;
             }
         });
 
-        function nextQuestion() {
-            document.getElementById("feedback").innerText = "";
-            document.getElementById("nextButton").style.display = "none";
-            document.querySelector("button[type='submit']").disabled = false;
+        function disableInputs() {
+            document.querySelectorAll("input[name='meaning']").forEach(i => i.disabled = true);
+            document.querySelectorAll("input[name='synonym']").forEach(i => i.disabled = true);
+            document.getElementById("submitBtn").disabled = true;
+        }
+
+        function enableInputs() {
             document.querySelectorAll("input[name='meaning']").forEach(i => i.disabled = false);
             document.querySelectorAll("input[name='synonym']").forEach(i => i.disabled = false);
+        }
+
+        function nextQuestion() {
+            document.getElementById("feedback").innerText = "";
+            document.getElementById("nextButton").hidden = true;
+            document.getElementById("submitBtn").disabled = false;
+            enableInputs();
             loadQuestion();
         }
 
+        // Optional — depends on your backend; kept for compatibility
         async function retryWrongWords() {
-            await fetch("/api/retry_wrong", { method: "POST" });
-            document.getElementById("retryButton").style.display = "none";
+            try {
+                await fetch("/api/retry_wrong", { method: "POST" });
+            } catch (_) {}
+            document.getElementById("retryButton").hidden = true;
             document.getElementById("feedback").innerText = "";
             loadQuestion();
         }
